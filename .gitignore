@@ -7,3 +7,8 @@ tldextract_app/tldextract
 tldextract_app/web
 tldextract.egg-info
 .tox
+.idea
+.direnv
+.envrc
+tldextract/.suffix_cache/*
+.pytest_cache
