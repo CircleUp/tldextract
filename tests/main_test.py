@@ -4,19 +4,22 @@
 import sys
 
 import responses
+
 import tldextract
-from .helpers import temporary_file
+from tldextract.tldextract import _SuffixListTLDExtractor, \
+    SOURCE_PUBLICSUFFIX_PRIVATE, SOURCE_PUBLICSUFFIX_ICANN
+from .helpers import temporary_dir
+
 if sys.version_info >= (3,):  # pragma: no cover
     unicode = str  # pylint: disable=invalid-name,redefined-builtin
 
-
 # pylint: disable=invalid-name
-extract = tldextract.TLDExtract(cache_file=temporary_file())
-extract_no_cache = tldextract.TLDExtract(cache_file=False)
-extract_using_real_local_suffix_list = tldextract.TLDExtract(cache_file=temporary_file())
-extract_using_real_local_suffix_list_no_cache = tldextract.TLDExtract(cache_file=False)
+extract = tldextract.TLDExtract(cache_dir=temporary_dir())
+extract_no_cache = tldextract.TLDExtract(cache_dir=False)
+extract_using_real_local_suffix_list = tldextract.TLDExtract(cache_dir=temporary_dir())
+extract_using_real_local_suffix_list_no_cache = tldextract.TLDExtract(cache_dir=False)
 extract_using_fallback_to_snapshot_no_cache = tldextract.TLDExtract(
-    cache_file=None,
+    cache_dir=None,
     suffix_list_urls=None
 )
 # pylint: enable=invalid-name
@@ -90,7 +93,7 @@ def test_qualified_local_host():
 def test_ip():
     assert_extract('http://216.22.0.192/',
                    ('', '', '216.22.0.192', ''),
-                   expected_ip_data='216.22.0.192',)
+                   expected_ip_data='216.22.0.192', )
     assert_extract('http://216.22.project.coop/',
                    ('216.22.project.coop', '216.22', 'project', 'coop'))
 
@@ -219,7 +222,8 @@ def test_result_as_dict():
     )
     expected_dict = {'subdomain': 'www',
                      'domain': 'google',
-                     'suffix': 'com'}
+                     'suffix': 'com',
+                     'source': 'publicsuffix_icann'}
     assert result._asdict() == expected_dict
 
 
@@ -233,3 +237,23 @@ def test_cache_timeouts():
     )
 
     assert tldextract.remote.find_first_response([server], 5) == unicode('')
+
+
+def test_list_source():
+    extractor = tldextract.TLDExtract(cache_dir=None)
+    extractor._extractor = _SuffixListTLDExtractor({  # pylint: disable=locally-disabled, protected-access
+        SOURCE_PUBLICSUFFIX_ICANN: set(['com', 'net']),
+        SOURCE_PUBLICSUFFIX_PRIVATE: set(['blogspot.com']),
+    })
+
+    result = extractor('hi.blogspot.com', include_psl_private_domains=False)
+    assert result.subdomain == 'hi'
+    assert result.domain == 'blogspot'
+    assert result.suffix == 'com'
+    assert result.source == SOURCE_PUBLICSUFFIX_ICANN
+
+    result = extractor('hi.blogspot.com', include_psl_private_domains=True)
+    assert result.subdomain == ''
+    assert result.domain == 'hi'
+    assert result.suffix == 'blogspot.com'
+    assert result.source == SOURCE_PUBLICSUFFIX_PRIVATE
