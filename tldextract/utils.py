@@ -27,7 +27,7 @@ def cache_to_jsonfile(path, ignore_kwargs=()):
 
             make_dir(cache_path)
 
-            # without locking, Concurrency could leader to multiple writers, or readers of a partial write
+            # without locking, Concurrency could lead to multiple writers, or readers of a partial write
             with FileLock(lock_path, timeout=20):
                 if not os.path.isfile(cache_path):
                     result = func(*args, **kwargs)
