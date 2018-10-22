@@ -34,8 +34,8 @@ def cache_to_jsonfile(path, ignore_kwargs=()):
                     with open(cache_path, 'w') as cache_file:
                         json.dump(result, cache_file)
 
-            with open(cache_path) as cache_file:
-                return json.load(cache_file)
+                with open(cache_path) as cache_file:
+                    return json.load(cache_file)
 
         return return_cache
 
