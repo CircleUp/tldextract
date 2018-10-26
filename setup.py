@@ -34,13 +34,13 @@ from setuptools import setup
 LONG_DESCRIPTION_MD = __doc__
 LONG_DESCRIPTION = re.sub(r'(?s)\[(.*?)\]\((http.*?)\)', r'\1', LONG_DESCRIPTION_MD)
 
-INSTALL_REQUIRES = ["setuptools", "idna", "requests>=2.1.0", "requests-file>=1.4"]
+INSTALL_REQUIRES = ["setuptools", "idna", "requests>=2.1.0", "requests-file>=1.4", 'filelock>=3.0.8']
 if (2, 7) > sys.version_info:
     INSTALL_REQUIRES.append("argparse>=1.2.1")
 
 setup(
     name="tldextract",
-    version="2.2.0",
+    version="3.0.1.circleup",
     author="John Kurkowski",
     author_email="john.kurkowski@gmail.com",
     description=("Accurately separate the TLD from the registered domain and "
