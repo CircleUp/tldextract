@@ -1,6 +1,33 @@
 # tldextract
 
-## Python Module [![PyPI version](https://badge.fury.io/py/tldextract.svg)](https://badge.fury.io/py/tldextract) [![Build Status](https://travis-ci.org/john-kurkowski/tldextract.svg?branch=master)](https://travis-ci.org/john-kurkowski/tldextract)
+## CircleUp Fork
+
+This fork fixes an issue with how the original version caches the Public Suffix List (see [PR](https://github.com/john-kurkowski/tldextract/pull/144)).
+
+The upstream version caches one particular version of the list (either with or without private suffixes),
+depending on the settings you use the first time you call it.   All subsequent calls, return using that originally cached list.
+Any calls with different settings than the original silently return incorrect results.
+
+This fork caches the entire list and filters at query time based on the specified arguments.
+
+This change is not backwards compatible.
+
+Changes
+- Moves `include_psl_private_domains` to the `__call__` method.  This is now something you choose on a per-call basis.
+- The entire dataset from publicsuffix.org is saved to cache
+- Added 'source' attribute to named tuple which tells you which suffix list the url was matched against
+- Ensured no weird cache issues happen when using with different `suffix_list_urls` by using different filenames per `suffix_list_urls`
+- Deletes the bundled snapshot
+
+**How to use**
+```python
+import tldextract
+tldextract.extract('http://forums.news.cnn.com/', include_psl_private_domains=True)
+```
+
+The documentation below has been unmodified from upstream.
+
+## Python Module
 
 `tldextract` accurately separates the gTLD or ccTLD (generic or country code
 top-level domain) from the registered domain and subdomains of a URL. For
